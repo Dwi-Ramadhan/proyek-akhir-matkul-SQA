@@ -1,3 +1,53 @@
+<?php
+
+$nama_mahasiswa = "";
+$message_type = "";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    $is_valid = true;
+    $nama_mahasiswa = trim($_POST["nama"]);
+
+    if (empty($nama_mahasiswa)) {
+        $is_valid = false;
+    }
+
+    if (preg_match('/[0-9]/', $nama_mahasiswa)) {
+        $is_valid = false;
+    }
+
+    if ($is_valid) {
+        $servername = "localhost";
+        $username = "root";
+        $password = "";
+        $dbname = "maba_app";
+
+        $conn = new mysqli($servername, $username, $password, $dbname);
+
+        if ($conn->connect_error) {
+            $message_type = "error";
+        } else {
+            $stmt = $conn->prepare("INSERT INTO calon_mahasiswa (nama) VALUES (?)");
+            $stmt->bind_param("s", $nama_mahasiswa);
+
+            if ($stmt->execute()) {
+                $message_type = "success";
+            } else {
+                $message_type = "error";
+            }
+
+            $stmt->close();
+            $conn->close();
+        }
+    } else {
+        $message_type = "error";
+    }
+
+    header("Location: " . htmlspecialchars($_SERVER["PHP_SELF"]) . "#" . $message_type);
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -6,7 +56,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aplikasi Mahasiswa Baru USTI</title>
 
-    <link rel="stylesheet" href="/style/style.css">
+    <link rel="stylesheet" href="style/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -55,7 +105,7 @@
                 <p class="text-lg text-yellow-800 dark:text-yellow-400 font-semibold">Universitas Sains dan Teknologi Indonesia</p>
             </div>
 
-            <form class="flex flex-col items-center space-y-10" action="#" method="POST">
+            <form class="flex flex-col items-center space-y-10" action="" method="POST">
                 <div class="w-full">
                     <label for="nama" class="block text-md font-medium text-gray-700 dark:text-gray-300 mb-2">Nama Calon Mahasiswa</label>
                     <div class="relative">
@@ -64,15 +114,13 @@
                                 <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                             </svg>
                         </div>
-                        <input type="text" name="nama" id="nama" class="block w-full pl-10 pr-3 py-3 bg-white/50 dark:bg-gray-700/50 border border-gray-900 dark:border-gray-300 rounded-lg dark:shadow-2xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition duration-150" placeholder="Contoh: Budi Sanjaya">
+                        <input type="text" name="nama" id="nama" class="block w-full pl-10 pr-3 py-3 bg-white/50 dark:bg-gray-700/50 border border-gray-900 dark:border-gray-300 rounded-lg dark:shadow-2xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition duration-150" placeholder="Contoh: Dwi Ramadhan Rivaldo">
                     </div>
                 </div>
 
-                <div class="w-1/2 pt-2">
-                    <a href="#error" class="flex items-center justify-center text-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-blue-800 to-amber-600 hover:from-blue-900 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all transform hover:-translate-y-0.5">
-                        Simpan Data
-                    </a>
-                </div>
+                <button type="submit" class="w-1/2 pt-2 flex items-center justify-center text-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-blue-800 to-amber-600 hover:from-blue-900 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all transform hover:-translate-y-0.5">
+                    Simpan Data
+                </button>
             </form>
         </div>
     </div>
